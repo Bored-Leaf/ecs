@@ -1,4 +1,5 @@
 #include <print>
+#include "entity.hpp"
 
 int main() {
     std::println("Hello world");
@@ -21,8 +22,10 @@ int main() {
             e5        |      None
 
         Tests cases
-        1. Add and get: Each added component can be read back with right values.
-        2. View intersection:
+        1. kIndexBits and kGenerationBits: make a few entities and print the packed value in hex and checks
+            that the index and generation come back unchanged, including the max index and generation.
+        2. Add and get: Each added component can be read back with right values.
+        3. View intersection:
               * Test scene not created
                 View<Position, Velocity>    - expected gracefully returns nothing/empty iterator/empty range
               * Test scene created
@@ -32,13 +35,13 @@ int main() {
                 View<Velocity>              - expected e1, e2, e4
                 View<Position, Velocity>    - expected nothing
             e5 never appears but is still alive.
-        3. Swap remove (middle): Remove a components in the middle of the pool. The moved entity must still
+        4. Swap remove (middle): Remove a components in the middle of the pool. The moved entity must still
             resolve its own data, the removed entity no longer has the component, the view result lose only
             that entity, and sparse and dense still agree.
-        4. Swap remove (last): Needs no swap
-        5. Move semantics: during swap remove the custom type is moved, not copied (check the counters), and
+        5. Swap remove (last): Needs no swap
+        6. Move semantics: during swap remove the custom type is moved, not copied (check the counters), and
             ASan reports nothing.
-        6. Generation, Handle Validity, and Destructor Lifecycle:
+        7. Generation, Handle Validity, and Destructor Lifecycle:
             - Add a Custom component to an entity.
             - Copy its handle (old_handle).
             - Destroy the entity. Assert that the Custom component's destructor runs exactly once here.

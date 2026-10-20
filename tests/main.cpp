@@ -1,25 +1,36 @@
 #include <print>
+#include <cassert>
+
 #include "details/entity.hpp"
+#include "details/sparse_set.hpp"
+
+struct Position {
+    float x;
+    float y;
+    float z;
+};
 
 int main() {
     std::println("Bored Leaf's ECS Tests");
 
     std::println("Testing Bit manipulation's don't leak");
-    static_assert(ecs::Entity::Make(5, 1).Generation() == 1);
+    static_assert(ecs::Entity::make(5, 1).generation() == 1);
 
-    static_assert(ecs::Entity::Make(ecs::Entity::kIndexMask, 1).Index()  == ecs::Entity::kIndexMask);
-    static_assert(ecs::Entity::Make(ecs::Entity::kIndexMask, 1).Generation() == 1);
+    static_assert(ecs::Entity::make(ecs::Entity::kIndexMask, 1).index()  == ecs::Entity::kIndexMask);
+    static_assert(ecs::Entity::make(ecs::Entity::kIndexMask, 1).generation() == 1);
 
-    static_assert(ecs::Entity::Make(0, ecs::Entity::kGenerationMask).Index() == 0);
-    static_assert(ecs::Entity::Make(0, ecs::Entity::kGenerationMask).Generation() == ecs::Entity::kGenerationMask);
+    static_assert(ecs::Entity::make(0, ecs::Entity::kGenerationMask).index() == 0);
+    static_assert(ecs::Entity::make(0, ecs::Entity::kGenerationMask).generation() == ecs::Entity::kGenerationMask);
 
-    static_assert(ecs::Entity::Make(ecs::Entity::kIndexMask, ecs::Entity::kGenerationMask).indexGeneration == 0xFFFF'FFFF);
+    static_assert(ecs::Entity::make(ecs::Entity::kIndexMask, ecs::Entity::kGenerationMask).indexGeneration == 0xFFFF'FFFF);
 
-    static_assert(ecs::Entity::FromHandle(ecs::Entity::Make(5, 1).ToHandle()) == ecs::Entity::Make(5, 1));
+    static_assert(ecs::Entity::fromHandle(ecs::Entity::make(5, 1).toHandle()) == ecs::Entity::make(5, 1));
 
-    static_assert(ecs::Entity{}.IsNull() == true);
-    static_assert(ecs::Entity::Make(0, 3).IsNull() == false);
+    static_assert(ecs::Entity{}.isNull() == true);
+    static_assert(ecs::Entity::make(0, 3).isNull() == false);
 
+    std::println("Testing sparse set functionality");
+    ecs::SparseSet<Position> sparse;
     /*
         Tests overview
         Test components: 

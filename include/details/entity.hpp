@@ -12,10 +12,10 @@ namespace ecs{
     struct Entity {
         std::uint32_t indexGeneration{}; ///< Packed values of the Entity's index and generation.
 
-        constexpr static int            kIndexBits          = 16;                           ///< How many bits are assigned to the index.
-        constexpr static int            kGenerationBits     = 16;                           ///< How many bits are assigned to the generation.
-        constexpr static std::uint32_t  kIndexMask          = (1u << kIndexBits) - 1;       ///< Bitmask for the index bits.
-        constexpr static std::uint32_t  kGenerationMask     = (1u << kGenerationBits) - 1;  ///< Bitmask for the generation bits.
+        constexpr static int            kIndexBits          {16};                           ///< How many bits are assigned to the index.
+        constexpr static int            kGenerationBits     {16};                           ///< How many bits are assigned to the generation.
+        constexpr static std::uint32_t  kIndexMask          {(1u << kIndexBits) - 1};       ///< Bitmask for the index bits.
+        constexpr static std::uint32_t  kGenerationMask     {(1u << kGenerationBits) - 1};  ///< Bitmask for the generation bits.
 
         static_assert(kIndexBits + kGenerationBits == 32, "kIndexBits + kGenerationBits must be 32 bits");
 
@@ -24,14 +24,14 @@ namespace ecs{
          * 
          * @return The Entity's index.
          */
-        constexpr std::uint32_t Index()         const { return indexGeneration & kIndexMask; }
+        constexpr std::uint32_t index()         const { return indexGeneration & kIndexMask; }
 
         /**
          * @brief Returns the generation value from @ref indexGeneration.
          * 
          * @return The Entity's generation. 
          */
-        constexpr std::uint32_t Generation()    const { return indexGeneration >> kIndexBits; }
+        constexpr std::uint32_t generation()    const { return indexGeneration >> kIndexBits; }
 
         /**
          * @brief Creates an @ref Entity via an index and generation.
@@ -42,7 +42,7 @@ namespace ecs{
          * @param generation The generation of the entity.
          * @return constexpr Entity An entity.
          */
-        constexpr static Entity Make(std::uint32_t index, std::uint32_t generation) { 
+        constexpr static Entity make(std::uint32_t index, std::uint32_t generation) { 
             assert(index <= kIndexMask && "Make: index exceeds kIndexMask");
             assert(generation <= kGenerationMask && "Make: generation exceeds kGenerationMask");
             return Entity{.indexGeneration = generation << kIndexBits | index}; 
@@ -53,7 +53,7 @@ namespace ecs{
          * 
          * @return The converted EntityHandle.
          */
-        constexpr EntityHandle  ToHandle() const { return EntityHandle{.indexGeneration = indexGeneration}; }
+        constexpr EntityHandle  toHandle() const { return EntityHandle{.indexGeneration = indexGeneration}; }
 
         /**
          * @brief Converts an EntityHandle to an Entity.
@@ -61,7 +61,7 @@ namespace ecs{
          * @param h The EntityHandle converting to Entity.
          * @return The converted Entity.
          */
-        constexpr static Entity FromHandle(const EntityHandle& h) { return Entity{.indexGeneration = h.indexGeneration}; }
+        constexpr static Entity fromHandle(const EntityHandle& h) { return Entity{.indexGeneration = h.indexGeneration}; }
 
         /**
          * @brief Checks if the generation is valid.
@@ -69,7 +69,7 @@ namespace ecs{
          * @return true if generation is larger than 0.
          * @return false if generation equals 0.
          */
-        constexpr bool IsNull() const { return Generation() == 0; }
+        constexpr bool isNull() const { return generation() == 0; }
 
         /**
          * @brief Compares two entities for equality of their indexGeneration.

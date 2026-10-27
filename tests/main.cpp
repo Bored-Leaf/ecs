@@ -13,7 +13,8 @@ struct Position {
 int main() {
     std::println("Bored Leaf's ECS Tests");
 
-    std::println("Testing Bit manipulation's don't leak");
+    std::println("-- Testing Bit manipulation's don't leak --");
+    std::println("*Contains only static_asserts");
     static_assert(ecs::Entity::make(5, 1).generation() == 1);
 
     static_assert(ecs::Entity::make(ecs::Entity::kIndexMask, 1).index()  == ecs::Entity::kIndexMask);
@@ -29,8 +30,26 @@ int main() {
     static_assert(ecs::Entity{}.isNull() == true);
     static_assert(ecs::Entity::make(0, 3).isNull() == false);
 
-    std::println("Testing sparse set functionality");
+    std::println("-- Testing sparse set functionality --");
     ecs::SparseSet<Position> sparse;
+    ecs::Entity entity{ecs::Entity::make(1, 1)};
+
+    bool hasEmptySet{sparse.has(entity)};
+    std::println("has() with Empty set, should be false: {}", hasEmptySet);
+
+    entity = ecs::Entity::make(50, 1);
+    bool indexBeyondSize{sparse.has(entity)};
+    std::println("has() with entity index beyond sparse.size(), should be false: {}", indexBeyondSize);
+
+    sparse.add(entity, Position(1, 1, 1));
+    entity = ecs::Entity::make(25, 1);
+    bool iskEmpty{sparse.has(entity)};
+    std::println("index within sparse.size() but is kEmpty, should be false: {}", iskEmpty);
+
+    entity = ecs::Entity::make(45, 2);
+    sparse.add(entity, Position(2, 2, 2));
+    bool hasComponent{sparse.has(entity)};
+    std::println("entity with a component, should be true: {}", hasComponent);
     /*
         Tests overview
         Test components: 

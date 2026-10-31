@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdint>
 #include <cstdlib>
+#include <utility>
 
 #include "details/entity.hpp"
 
@@ -46,7 +47,6 @@ namespace ecs {
          * @param component The component to add for e.
          */
         void add(const ecs::Entity e, const T& component) {
-            assert(has(e) == false && "sparseSet<T>::add() must not already contain the Entity!");
             if (has(e)) [[unlikely]] {
                 // TODO: Use log callback for the print message for custom logging
                 std::println(stderr, "sparseSet<T>::add(): The entity must not already contain a component. Entity Index: {}, Entity Generation: {}", e.index(), e.generation());
@@ -54,7 +54,7 @@ namespace ecs {
             }
             
             if (sparse.size() <= e.index()) {
-                sparse.resize(e.index() + 1, kEmpty);    
+                sparse.resize(e.index() + 1, kEmpty);
             }
 
             std::uint32_t sparseIndex{static_cast<std::uint32_t>(denseEntities.size())};
@@ -74,19 +74,21 @@ namespace ecs {
          * @param e The @ref Entity to remove.
          */
         void remove(const ecs::Entity e) {
-            if (has(e)) [[unlikely]] {
-                std::println(stderr, "");
+            if (!has(e)) [[unlikely]] {
+                std::println(stderr, "sparseSet<T>::remove(): The entity must have a component. Entity Index: {}, Entity Generation: {}", e.index(), e.generation());
                 std::abort();
             }
 
-            int densePosition{sparse[e.index()]};
+            std::uint32_t densePosition{sparse[e.index()]};
 
-            denseEntities[densePosition] = denseEntities.back();
-            int sparsePosition{denseEntities[densePosition].index()};
-            sparse[sparsePosition] = densePosition;
+            denseEntities[densePosition] = std::move(denseEntities.back());
+            std::uint32_t swappedEntityDensePosition{denseEntities[densePosition].index()};
+            sparse[swappedEntityDensePosition] = densePosition;
             denseEntities.pop_back();
 
-            denseComponents[densePosition] = denseComponents.back();
+            if (densePosition != denseComponents.size() - 1) {
+                denseComponents[densePosition] = std::move(denseComponents.back());
+            }
             denseComponents.pop_back();
 
             sparse[e.index()] = kEmpty;

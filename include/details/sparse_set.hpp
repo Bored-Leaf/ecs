@@ -38,6 +38,40 @@ namespace ecs {
         }
 
         /**
+         * @brief Returns component data of @p e.
+         * 
+         * @note Crashes when an @ref Entity without a component is passed to enforce strict
+         * state determinism and prevent unnoticed bugs.
+         * @note Recommended to use @p T briefly: get it, use it and drop it within the same piece of code. Never 
+         * store @p T long term, store the @ref EntityHandle instead and call @ref get again when you need the data.
+         *
+         * @warning @p T is only safe to use until the next @ref add, @ref replace, @ref addOrReplace or @ref remove call.
+         *
+         * @param e @ref Entity whose components belong to.
+         * @return T Component data of @p e.
+         */
+        T& get(const ecs::Entity e) {
+
+        }
+
+        /**
+         * @brief Returns const component data of @p e.
+         * 
+         * @note Crashes when an @ref Entity without a component is passed to enforce strict
+         * state determinism and prevent unnoticed bugs.
+         * @note Recommended to use @p T briefly: get it, use it and drop it within the same piece of code. Never 
+         * store @p T long term, store the @ref EntityHandle instead and call @ref get again when you need the data.
+         *
+         * @warning @p T is only safe to use until the next @ref add, @ref replace, @ref addOrReplace or @ref remove call.
+         *
+         * @param e @ref Entity whose components belong to.
+         * @return T Component data of @p e.
+         */
+        const T& get(const ecs::Entity e) const {
+
+        }
+
+        /**
          * @brief Adds an @ref Entity and component if the @ref Entity does have a component.
          *
          * @note Crashes when an @ref Entity with a component is passed to enforce strict state 
@@ -63,6 +97,22 @@ namespace ecs {
             denseComponents.push_back(component);
 
             sparse[e.index()] = sparseIndex;
+        }
+
+        /**
+         * @brief 
+         * 
+         */
+        void replace() {
+        
+        }
+
+        /**
+         * @brief 
+         * 
+         */
+        void addOrReplace() {
+        
         }
 
         /**

@@ -7,8 +7,8 @@
 
 namespace ecs{
     /**
-        * @brief An entity that represents the index and generation.
-        */
+    * @brief An entity that represents the index and generation.
+    */
     struct Entity {
         std::uint32_t indexGeneration{}; ///< Packed values of the Entity's index and generation.
 

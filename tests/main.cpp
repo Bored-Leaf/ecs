@@ -30,26 +30,47 @@ int main() {
     static_assert(ecs::Entity{}.isNull() == true);
     static_assert(ecs::Entity::make(0, 3).isNull() == false);
 
-    std::println("-- Testing sparse set functionality --");
-    ecs::SparseSet<Position> sparse;
+    std::println("-- Testing SparseSet<T>::has() --");
+    ecs::SparseSet<Position> sparseHasTest{};
     ecs::Entity entity{ecs::Entity::make(1, 1)};
 
-    bool hasEmptySet{sparse.has(entity)};
+    bool hasEmptySet{sparseHasTest.has(entity)};
     std::println("has() with Empty set, should be false: {}", hasEmptySet);
 
     entity = ecs::Entity::make(50, 1);
-    bool indexBeyondSize{sparse.has(entity)};
+    bool indexBeyondSize{sparseHasTest.has(entity)};
     std::println("has() with entity index beyond sparse.size(), should be false: {}", indexBeyondSize);
 
-    sparse.add(entity, Position(1, 1, 1));
+    sparseHasTest.add(entity, Position(1.0, 1.0, 1.0));
     entity = ecs::Entity::make(25, 1);
-    bool iskEmpty{sparse.has(entity)};
-    std::println("index within sparse.size() but is kEmpty, should be false: {}", iskEmpty);
+    bool iskEmpty{sparseHasTest.has(entity)};
+    std::println("has() with index within sparse.size() but is kEmpty, should be false: {}", iskEmpty);
 
     entity = ecs::Entity::make(45, 2);
-    sparse.add(entity, Position(2, 2, 2));
-    bool hasComponent{sparse.has(entity)};
-    std::println("entity with a component, should be true: {}", hasComponent);
+    sparseHasTest.add(entity, Position(2.0, 2.0, 2.0));
+    bool hasComponent{sparseHasTest.has(entity)};
+    std::println("has() with entity with a component, should be true: {}", hasComponent);
+
+    std::println("-- ABCD Test --");
+    ecs::SparseSet<Position> spaseABCDTest{};
+    ecs::Entity a{ecs::Entity::make(0, 1)};
+    ecs::Entity b{ecs::Entity::make(1, 1)};
+    ecs::Entity c{ecs::Entity::make(2, 1)};
+    ecs::Entity d{ecs::Entity::make(3, 1)};
+    spaseABCDTest.add(a, Position{0.0, 0.0, 0.0});
+    spaseABCDTest.add(b, Position{1.0, 1.0, 1.0});
+    spaseABCDTest.add(c, Position{2.0, 2.0, 2.0});
+    spaseABCDTest.add(d, Position{3.0, 3.0, 3.0});
+    spaseABCDTest.remove(b);
+    spaseABCDTest.remove(d);
+    bool aHas{spaseABCDTest.has(a)};
+    bool bHas{spaseABCDTest.has(b)};
+    bool cHas{spaseABCDTest.has(c)};
+    bool dHas{spaseABCDTest.has(d)};
+    std::println("Entity A should be true: {}", aHas);
+    std::println("Entity B should be false: {}", bHas);
+    std::println("Entity C should be true: {}", cHas);
+    std::println("Entity D should be false: {}", dHas);
     /*
         Tests overview
         Test components: 

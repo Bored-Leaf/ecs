@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <utility>
+#include <concepts>
+#include <type_traits>
 
 #include "details/entity.hpp"
 
@@ -74,7 +76,9 @@ namespace ecs {
          * @param e The @ref Entity to add.
          * @param component The component to add for e.
          */
-        void add(const ecs::Entity e, const T& component) {
+        template <typename U>
+            requires std::same_as<std::remove_cvref_t<U>, T>
+        void add(const ecs::Entity e, U&& component) {
             if (has(e)) [[unlikely]] {
                 // TODO: Use log callback for the print message for custom logging
                 std::println(stderr, "sparseSet<T>::add(): The entity must not already contain a component. Entity Index: {}, Entity Generation: {}", e.index(), e.generation());
@@ -88,7 +92,7 @@ namespace ecs {
             std::uint32_t sparseIndex{static_cast<std::uint32_t>(denseEntities.size())};
 
             denseEntities.push_back(e);
-            denseComponents.push_back(component);
+            denseComponents.push_back(std::forward<U>(component));
 
             sparse[e.index()] = sparseIndex;
         }

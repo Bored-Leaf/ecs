@@ -58,8 +58,10 @@ int main() {
     ecs::Entity b{ecs::Entity::make(1, 1)};
     ecs::Entity c{ecs::Entity::make(2, 1)};
     ecs::Entity d{ecs::Entity::make(3, 1)};
-    sparseABCDTest.add(a, Position{0.0, 0.0, 0.0});
-    sparseABCDTest.add(b, Position{1.0, 1.0, 1.0});
+    Position aPosition{0.0, 0.0, 0.0};
+    Position bPosition(1.0, 1.0, 1.0);
+    sparseABCDTest.add(a, aPosition);
+    sparseABCDTest.add(b, std::move(bPosition));
     sparseABCDTest.add(c, Position{2.0, 2.0, 2.0});
     sparseABCDTest.add(d, Position{3.0, 3.0, 3.0});
     sparseABCDTest.remove(b);

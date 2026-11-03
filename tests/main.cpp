@@ -1,5 +1,6 @@
 #include <print>
 #include <cassert>
+#include <type_traits>
 
 #include "details/entity.hpp"
 #include "details/sparse_set.hpp"
@@ -52,25 +53,39 @@ int main() {
     std::println("has() with entity with a component, should be true: {}", hasComponent);
 
     std::println("-- ABCD Test --");
-    ecs::SparseSet<Position> spaseABCDTest{};
+    ecs::SparseSet<Position> sparseABCDTest{};
     ecs::Entity a{ecs::Entity::make(0, 1)};
     ecs::Entity b{ecs::Entity::make(1, 1)};
     ecs::Entity c{ecs::Entity::make(2, 1)};
     ecs::Entity d{ecs::Entity::make(3, 1)};
-    spaseABCDTest.add(a, Position{0.0, 0.0, 0.0});
-    spaseABCDTest.add(b, Position{1.0, 1.0, 1.0});
-    spaseABCDTest.add(c, Position{2.0, 2.0, 2.0});
-    spaseABCDTest.add(d, Position{3.0, 3.0, 3.0});
-    spaseABCDTest.remove(b);
-    spaseABCDTest.remove(d);
-    bool aHas{spaseABCDTest.has(a)};
-    bool bHas{spaseABCDTest.has(b)};
-    bool cHas{spaseABCDTest.has(c)};
-    bool dHas{spaseABCDTest.has(d)};
+    sparseABCDTest.add(a, Position{0.0, 0.0, 0.0});
+    sparseABCDTest.add(b, Position{1.0, 1.0, 1.0});
+    sparseABCDTest.add(c, Position{2.0, 2.0, 2.0});
+    sparseABCDTest.add(d, Position{3.0, 3.0, 3.0});
+    sparseABCDTest.remove(b);
+    sparseABCDTest.remove(d);
+    bool aHas{sparseABCDTest.has(a)};
+    bool bHas{sparseABCDTest.has(b)};
+    bool cHas{sparseABCDTest.has(c)};
+    bool dHas{sparseABCDTest.has(d)};
     std::println("Entity A should be true: {}", aHas);
     std::println("Entity B should be false: {}", bHas);
     std::println("Entity C should be true: {}", cHas);
     std::println("Entity D should be false: {}", dHas);
+    std::println("Entity A Component Data, should be 0.0, 0.0, 0.0: {:.1f}, {:.1f}, {:.1f}", sparseABCDTest.get(a).x, sparseABCDTest.get(a).y, sparseABCDTest.get(a).z);
+    std::println("Entity C Component Data, should be 2.0, 2.0, 2.0: {:.1f}, {:.1f}, {:.1f}", sparseABCDTest.get(c).x, sparseABCDTest.get(c).y, sparseABCDTest.get(c).z);
+
+    std::println("-- SparseSet<T>::get() with const SparseSet<T> --");
+    const ecs::SparseSet<Position>& sparseSetConstRef{sparseABCDTest};
+    ecs::SparseSet<Position>&       sparseSetRef{sparseABCDTest};
+    std::println("Entity A Component Data, should be 0.0, 0.0, 0.0: {:.1f}, {:.1f}, {:.1f}", sparseSetConstRef.get(a).x, sparseSetConstRef.get(a).y, sparseSetConstRef.get(a).z);
+    std::println("Entity C Component Data, should be 2.0, 2.0, 2.0: {:.1f}, {:.1f}, {:.1f}", sparseSetConstRef.get(c).x, sparseSetConstRef.get(c).y, sparseSetConstRef.get(c).z);
+    // The result of sparseSetConstRef.get() is a const.
+    static_assert(std::is_const_v<std::remove_reference_t<decltype(sparseSetConstRef.get(a))>>, "SparseSet<T>::get() does not return a const reference for a const sparseSet<T>!");
+    // The result of sparseSetConstRef.get() is not const.
+    static_assert(!std::is_const_v<std::remove_reference_t<decltype(sparseSetRef.get(a))>>, "SparseSet<T>::get() does not return a non-const refernce for a non-const sparseSet<T>!");
+    sparseSetRef.get(a).x = 5.0;
+    std::println("Entity A component.x Data, should be 5.0: {:.1f}", sparseSetRef.get(a).x);
     /*
         Tests overview
         Test components: 

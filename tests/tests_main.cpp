@@ -5,10 +5,12 @@
 #include "details/entity.hpp"
 #include "details/sparse_set.hpp"
 
+#include "tests_include/user_type.hpp"
+
 struct Position {
-    float x;
-    float y;
-    float z;
+    float x{};
+    float y{};
+    float z{};
 };
 
 int main() {
@@ -88,6 +90,30 @@ int main() {
     static_assert(!std::is_const_v<std::remove_reference_t<decltype(sparseSetRef.get(a))>>, "SparseSet<T>::get() does not return a non-const refernce for a non-const sparseSet<T>!");
     sparseSetRef.get(a).x = 5.0;
     std::println("Entity A component.x Data, should be 5.0: {:.1f}", sparseSetRef.get(a).x);
+
+    std::println("-- SparseSet<T>::add() Testing forward referencing --");
+    UserType namedVariable{"Named"};
+    ecs::Entity forwardRefTestEntity1{ecs::Entity::make(0, 1)};
+    ecs::SparseSet<UserType> sparseSetForwardAdd1{};
+    sparseSetForwardAdd1.add(forwardRefTestEntity1, namedVariable);
+    std::println("SparseSet<T>::add() Named variable, expected 1 copies: {}, and 0 moves: {}", UserType::getCopies(), UserType::getMoves());
+    UserType::resetCopies();
+    UserType::resetMoves();
+
+    ecs::Entity forwardRefTestEntity2{ecs::Entity::make(1, 1)};
+    ecs::SparseSet<UserType> sparseSetForwardAdd2{};
+    sparseSetForwardAdd2.add(forwardRefTestEntity2, UserType{"Temporary"});
+    std::println("SparseSet<T>::add() Temporary variable, expected 0 copies: {}, and 1 move: {}", UserType::getCopies(), UserType::getMoves());
+    UserType::resetCopies();
+    UserType::resetMoves();
+
+    ecs::Entity forwardRefTestEntity3{ecs::Entity::make(2, 1)};
+    UserType movedVariable{"Moved"};
+    ecs::SparseSet<UserType> sparseSetForwardAdd3{};
+    sparseSetForwardAdd3.add(forwardRefTestEntity3, std::move(movedVariable));
+    std::println("SparseSet<T>::add() std::moved named variable, expected 0 copies: {}, and 1 move: {}", UserType::getCopies(), UserType::getMoves());
+    UserType::resetCopies();
+    UserType::resetMoves();
     /*
         Tests overview
         Test components: 

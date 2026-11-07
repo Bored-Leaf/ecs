@@ -70,7 +70,7 @@ namespace ecs {
         /**
          * @brief Adds an @ref Entity and component if the @ref Entity does have a component.
          *
-         * @note Crashes when an @ref Entity with a component is passed to enforce strict state 
+         * @note Crashes when an @ref Entity with a component is passed that already exists to enforce strict state 
          * determinism and prevent unnoticed bugs.
          * 
          * @param e The @ref Entity to add.

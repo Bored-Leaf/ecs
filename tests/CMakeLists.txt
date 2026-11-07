@@ -1,5 +1,5 @@
 
-add_executable(ecs_tests tests_main.cpp src/user_type.cpp)
+add_executable(ecs_tests tests_main.cpp tests_src/user_type.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_compile_options(ecs_tests PRIVATE -stdlib=libc++)

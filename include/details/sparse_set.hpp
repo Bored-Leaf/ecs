@@ -56,6 +56,8 @@ namespace ecs {
          *
          * @param e The @ref Entity to qurey.
          * @return Reference of the component data of `e`, const when @ref SparseSet is const.
+         *
+         * @see replace() or addOrReplace() for updating whole components.
          */
         auto& get(this auto& self, const ecs::Entity e) {
             if (!self.has(e)) [[unlikely]] {
@@ -70,11 +72,12 @@ namespace ecs {
         /**
          * @brief Adds an @ref Entity and component if the @ref Entity does have a component.
          *
-         * @note Crashes when an @ref Entity with a component is passed that already exists to enforce strict state 
+         * @note Crashes when an `e` already has a component to enforce strict state 
          * determinism and prevent unnoticed bugs.
          * 
-         * @param e The @ref Entity to add.
-         * @param component The component to add for e.
+         * @tparam U Component to add, same as `T`.
+         * @param e The @ref Entity to add a component to.
+         * @param component The component to add for `e`.
          */
         template <typename U>
             requires std::same_as<std::remove_cvref_t<U>, T>

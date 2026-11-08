@@ -11,7 +11,7 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-21",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-21",
-                "CMAKE_CXX_FLAGS": "-std=c++23 -Wall -Wextra -Wpedantic --stdlib=libc++",
+                "CMAKE_CXX_FLAGS": "-std=c++23 -Wall -Wextra -Wpedantic -fno-exceptions --stdlib=libc++",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -25,7 +25,7 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-21",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-21",
-                "CMAKE_CXX_FLAGS": "-std=c++23 -Wall -Wextra -Wpedantic --stdlib=libc++ -fsanitize=address -fno-omit-frame-pointer -g",
+                "CMAKE_CXX_FLAGS": "-std=c++23 -Wall -Wextra -Wpedantic  -fno-exceptions --stdlib=libc++ -fsanitize=address -fno-omit-frame-pointer -g",
                 "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address",
                 "CMAKE_BUILD_TYPE": "Debug"
             }

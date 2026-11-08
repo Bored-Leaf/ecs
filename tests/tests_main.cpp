@@ -33,6 +33,8 @@ int main() {
     static_assert(ecs::Entity{}.isNull() == true);
     static_assert(ecs::Entity::make(0, 3).isNull() == false);
 
+    // =========
+
     std::println("-- Testing SparseSet<T>::has() --");
     ecs::SparseSet<Position> sparseHasTest{};
     ecs::Entity entity{ecs::Entity::make(1, 1)};
@@ -54,7 +56,9 @@ int main() {
     bool hasComponent{sparseHasTest.has(entity)};
     std::println("has() with entity with a component, should be true: {}", hasComponent);
 
-    std::println("-- ABCD Test --");
+    // ================================== //
+
+    std::println("-- SparseSet<T>::add() ABCD Test --");
     ecs::SparseSet<Position> sparseABCDTest{};
     ecs::Entity a{ecs::Entity::make(0, 1)};
     ecs::Entity b{ecs::Entity::make(1, 1)};
@@ -79,7 +83,9 @@ int main() {
     std::println("Entity A Component Data, should be 0.0, 0.0, 0.0: {:.1f}, {:.1f}, {:.1f}", sparseABCDTest.get(a).x, sparseABCDTest.get(a).y, sparseABCDTest.get(a).z);
     std::println("Entity C Component Data, should be 2.0, 2.0, 2.0: {:.1f}, {:.1f}, {:.1f}", sparseABCDTest.get(c).x, sparseABCDTest.get(c).y, sparseABCDTest.get(c).z);
 
-    std::println("-- SparseSet<T>::get() with const SparseSet<T> --");
+    // ================================== //
+
+    std::println("-- SparseSet<T>::get() Testing const and non-const SparseSet<T> --");
     const ecs::SparseSet<Position>& sparseSetConstRef{sparseABCDTest};
     ecs::SparseSet<Position>&       sparseSetRef{sparseABCDTest};
     std::println("Entity A Component Data, should be 0.0, 0.0, 0.0: {:.1f}, {:.1f}, {:.1f}", sparseSetConstRef.get(a).x, sparseSetConstRef.get(a).y, sparseSetConstRef.get(a).z);
@@ -90,6 +96,8 @@ int main() {
     static_assert(!std::is_const_v<std::remove_reference_t<decltype(sparseSetRef.get(a))>>, "SparseSet<T>::get() does not return a non-const refernce for a non-const sparseSet<T>!");
     sparseSetRef.get(a).x = 5.0;
     std::println("Entity A component.x Data, should be 5.0: {:.1f}", sparseSetRef.get(a).x);
+
+    // ================================== //
 
     std::println("-- SparseSet<T>::add() Testing forward referencing --");
     UserType namedVariableAdd{"Named"};
@@ -114,6 +122,8 @@ int main() {
     std::println("SparseSet<T>::add() std::moved named variable, expected 0 copies: {}, and 1 move: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
     UserType::resetConstructorCopies();
     UserType::resetConstructorMoves();
+
+    // ================================== //
 
     std::println("-- SparseSet<T>::replace() Testing forward Referencing --");
     UserType replaceInitComponent{"Init"};
@@ -143,6 +153,24 @@ int main() {
     std::println("SparseSet<T>::replace moved variable, expected 0 copy assignments: {}, and 1 move assignments: {}", UserType::getAssignmentCopies(), UserType::getAssignmentMoves());
     UserType::resetAllCopyMoves();
 
+    // ================================== //
+
+    std::println("-- SparseSet<T>::addOrReplace() Testing forward referencing --");
+    UserType addOrReplaceComponent1{"Add"};
+    ecs::Entity addOrReplaceEntity{ecs::Entity::make(0, 1)};
+    ecs::SparseSet<UserType> sparseSetForwardAddOrReplace{};
+    sparseSetForwardAddOrReplace.addOrReplace(addOrReplaceEntity, addOrReplaceComponent1);
+    std::println("SparseSet<T>::addOrReplace entity has no component, expected to be \"Add\": {}", sparseSetForwardAddOrReplace.get(addOrReplaceEntity).m_str);
+    std::println("SparseSet<T>::addOrReplace entity has no component, expected 1 copy constructors: {}, and 0 move constructors: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    std::println("SparseSet<T>::addOrReplace entity has no component, expected 0 copy assignments: {}, and 0 move assignments: {}", UserType::getAssignmentCopies(), UserType::getAssignmentMoves());
+    UserType::resetAllCopyMoves();
+
+    UserType addOrReplaceComponent2{"Replace"};
+    sparseSetForwardAddOrReplace.addOrReplace(addOrReplaceEntity, addOrReplaceComponent2);
+    std::println("SparseSet<T>::addOrReplace entity has a component, expected to be \"Replace\": {}", sparseSetForwardAddOrReplace.get(addOrReplaceEntity).m_str);
+    std::println("SparseSet<T>::addOrReplace entity has a component, expected 0 copy constructors: {}, and 0 move constructors: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    std::println("SparseSet<T>::addOrReplace entity has a component, expected 1 copy assignments: {}, and 0 move assignments: {}", UserType::getAssignmentCopies(), UserType::getAssignmentMoves());
+    UserType::resetAllCopyMoves();
     /*
         Tests overview
         Test components: 

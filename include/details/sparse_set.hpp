@@ -98,11 +98,26 @@ namespace ecs {
         }
 
         /**
-         * @brief 
-         * 
+         * @brief Replaces component data of an @ref Entity if `e` already has a component.
+         *
+         * @note Crashes when an `e` doesn't have a component to enforce strict state
+         * determinism and prevent unnoticed bugs.
+         *
+         * @tparam U Component to replace, same as `T`.
+         * @param e The @ref Entity whose component to replace.
+         * @param component The component to replace for `e`.
+         *
+         * @see get() for updating one or two fields of a component.
          */
-        void replace() {
-        
+        template <typename U>
+            requires std::same_as<std::remove_cvref_t<U>, T>
+        void replace(const ecs::Entity e, U&& component) {
+            if (!has(e)) [[unlikely]] {
+                std::println(stderr, "SparseSet<T>::replace(): The entity must have a component to replace. Entity Index: {}, Entity Generation: {}", e.index(), e.generation());
+                std::abort();
+            }
+
+            get(e) = std::forward<U>(component);
         }
 
         /**

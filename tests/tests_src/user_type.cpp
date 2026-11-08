@@ -2,17 +2,19 @@
 
 #include "../tests_include/user_type.hpp"
 
-int UserType::copies{0};
-int UserType::moves{0};
+int UserType::constructorMoves{0};
+int UserType::constructorCopies{0};
+int UserType::assignmentMoves{0};
+int UserType::assignmentCopies{0};
 
 UserType::UserType(std::string str) : m_str(std::move(str)) {}
 
 UserType::UserType(const UserType& other) : m_str(other.m_str) {
-    copies++;
+    constructorCopies++;
 }
 
 UserType::UserType(UserType&& other) noexcept : m_str(std::move(other.m_str)) {
-    moves++;
+    constructorMoves++;
 }
 
 UserType& UserType::operator=(const UserType& other) {
@@ -21,6 +23,8 @@ UserType& UserType::operator=(const UserType& other) {
     }
 
     m_str = other.m_str;
+
+    assignmentCopies++;
 
     return *this;
 }
@@ -32,21 +36,46 @@ UserType& UserType::operator=(UserType&& other) noexcept {
 
     m_str = std::move(other.m_str);
 
+    assignmentMoves++;
+
     return *this;
 }
 
-int UserType::getMoves() {
-    return moves;
+int UserType::getConstructorMoves() {
+    return constructorMoves;
 }
 
-int UserType::getCopies() {
-    return copies;
+int UserType::getConstructorCopies() {
+    return constructorCopies;
 }
 
-void UserType::resetMoves() {
-    moves = 0;
+int UserType::getAssignmentMoves() {
+    return assignmentMoves;
 }
 
-void UserType::resetCopies() {
-    copies = 0;
+int UserType::getAssignmentCopies() {
+    return assignmentCopies;
+}
+
+void UserType::resetConstructorMoves() {
+    constructorMoves = 0;
+}
+
+void UserType::resetConstructorCopies() {
+    constructorCopies = 0;
+}
+
+void UserType::resetAssignmentMoves() {
+    assignmentMoves = 0;
+}
+
+void UserType::resetAssignmentCopies() {
+    assignmentCopies = 0;
+}
+
+void UserType::resetAllCopyMoves() {
+    constructorMoves = 0;
+    constructorCopies = 0;
+    assignmentMoves = 0;
+    assignmentCopies = 0;
 }

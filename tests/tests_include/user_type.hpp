@@ -3,8 +3,10 @@
 #include <string>
 
 struct UserType {
-    static int moves;
-    static int copies;
+    static int constructorMoves;
+    static int constructorCopies;
+    static int assignmentMoves;
+    static int assignmentCopies;
 
     std::string m_str{};
 
@@ -15,11 +17,14 @@ struct UserType {
     UserType& operator=(const UserType& other);
     UserType& operator=(UserType&& other) noexcept;
 
-    static int getMoves();
+    static int getConstructorMoves();
+    static int getConstructorCopies();
+    static int getAssignmentMoves();
+    static int getAssignmentCopies();
 
-    static int getCopies();
-
-    static void resetMoves();
-
-    static void resetCopies();
+    static void resetConstructorMoves();
+    static void resetConstructorCopies();
+    static void resetAssignmentMoves();
+    static void resetAssignmentCopies();
+    static void resetAllCopyMoves();
 };

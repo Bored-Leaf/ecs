@@ -92,28 +92,57 @@ int main() {
     std::println("Entity A component.x Data, should be 5.0: {:.1f}", sparseSetRef.get(a).x);
 
     std::println("-- SparseSet<T>::add() Testing forward referencing --");
-    UserType namedVariable{"Named"};
+    UserType namedVariableAdd{"Named"};
     ecs::Entity forwardRefTestEntity1{ecs::Entity::make(0, 1)};
     ecs::SparseSet<UserType> sparseSetForwardAdd1{};
-    sparseSetForwardAdd1.add(forwardRefTestEntity1, namedVariable);
-    std::println("SparseSet<T>::add() Named variable, expected 1 copies: {}, and 0 moves: {}", UserType::getCopies(), UserType::getMoves());
-    UserType::resetCopies();
-    UserType::resetMoves();
+    sparseSetForwardAdd1.add(forwardRefTestEntity1, namedVariableAdd);
+    std::println("SparseSet<T>::add() Named variable, expected 1 copies: {}, and 0 moves: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    UserType::resetConstructorCopies();
+    UserType::resetConstructorMoves();
 
     ecs::Entity forwardRefTestEntity2{ecs::Entity::make(1, 1)};
     ecs::SparseSet<UserType> sparseSetForwardAdd2{};
     sparseSetForwardAdd2.add(forwardRefTestEntity2, UserType{"Temporary"});
-    std::println("SparseSet<T>::add() Temporary variable, expected 0 copies: {}, and 1 move: {}", UserType::getCopies(), UserType::getMoves());
-    UserType::resetCopies();
-    UserType::resetMoves();
+    std::println("SparseSet<T>::add() Temporary variable, expected 0 copies: {}, and 1 move: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    UserType::resetConstructorCopies();
+    UserType::resetConstructorMoves();
 
     ecs::Entity forwardRefTestEntity3{ecs::Entity::make(2, 1)};
-    UserType movedVariable{"Moved"};
+    UserType movedVariableAdd{"Moved"};
     ecs::SparseSet<UserType> sparseSetForwardAdd3{};
-    sparseSetForwardAdd3.add(forwardRefTestEntity3, std::move(movedVariable));
-    std::println("SparseSet<T>::add() std::moved named variable, expected 0 copies: {}, and 1 move: {}", UserType::getCopies(), UserType::getMoves());
-    UserType::resetCopies();
-    UserType::resetMoves();
+    sparseSetForwardAdd3.add(forwardRefTestEntity3, std::move(movedVariableAdd));
+    std::println("SparseSet<T>::add() std::moved named variable, expected 0 copies: {}, and 1 move: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    UserType::resetConstructorCopies();
+    UserType::resetConstructorMoves();
+
+    std::println("-- SparseSet<T>::replace() Testing forward Referencing --");
+    UserType replaceInitComponent{"Init"};
+    ecs::Entity forwardRefReplaceDummyEntity{ecs::Entity::make(0, 1)};
+    ecs::SparseSet<UserType> sparseSetForwardReplace{};
+    sparseSetForwardReplace.add(forwardRefReplaceDummyEntity, replaceInitComponent);
+    std::println("SparseSet<T>::replace init component is {}", sparseSetForwardReplace.get(forwardRefReplaceDummyEntity).m_str);
+    UserType::resetAllCopyMoves();
+
+    UserType replaceMoved{"Named"};
+    sparseSetForwardReplace.replace(forwardRefReplaceDummyEntity, replaceMoved);
+    std::println("SparseSet<T>::replace named variable, expected be \"Named\": {}", sparseSetForwardReplace.get(forwardRefReplaceDummyEntity).m_str);
+    std::println("SparseSet<T>::replace named variable, expected 0 copy constructors: {}, and 0 move constructors: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    std::println("SparseSet<T>::replace named variable, expected 1 copy assignments: {}, and 0 move assignments: {}", UserType::getAssignmentCopies(), UserType::getAssignmentMoves());
+    UserType::resetAllCopyMoves();
+
+    sparseSetForwardReplace.replace(forwardRefReplaceDummyEntity, UserType{"Temporary"});
+    std::println("SparseSet<T>::replace temporary variable, expected be \"Temporary\": {}", sparseSetForwardReplace.get(forwardRefReplaceDummyEntity).m_str);
+    std::println("SparseSet<T>::replace temporary variable, expected 0 copy constructors: {}, and 0 move constructors: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    std::println("SparseSet<T>::replace temporary variable, expected 0 copy assignments: {}, and 1 move assignments: {}", UserType::getAssignmentCopies(), UserType::getAssignmentMoves());
+    UserType::resetAllCopyMoves();
+
+    UserType movedVariableReplace{"Moved"};
+    sparseSetForwardReplace.replace(forwardRefReplaceDummyEntity, std::move(movedVariableReplace));
+    std::println("SparseSet<T>::replace moved variable, expected be \"Moved\": {}", sparseSetForwardReplace.get(forwardRefReplaceDummyEntity).m_str);
+    std::println("SparseSet<T>::replace moved variable, expected 0 copy constructors: {}, and 0 move constructors: {}", UserType::getConstructorCopies(), UserType::getConstructorMoves());
+    std::println("SparseSet<T>::replace moved variable, expected 0 copy assignments: {}, and 1 move assignments: {}", UserType::getAssignmentCopies(), UserType::getAssignmentMoves());
+    UserType::resetAllCopyMoves();
+
     /*
         Tests overview
         Test components: 

@@ -13,7 +13,7 @@
 #include "details/entity.hpp"
 
 namespace ecs {
-    /**
+    /** @internal
      * @brief A sparse set design for the ecs.
      *
      * @details The first version of this ecs uses a Sparse set data structure.
@@ -23,7 +23,7 @@ namespace ecs {
     template <typename T>
     class SparseSet {
     public:
-        /**
+        /** @internal
          * @brief Checks if an @ref Entity has a component in the sparse set.
          * 
          * @param e The @ref Entity checked to have a component.
@@ -39,13 +39,12 @@ namespace ecs {
             return sparse[e.index()] != kEmpty;
         }
 
-        /**
+        /** @internal
          * @brief Gets component data of `e`.
          * @details Gets the component data of an @ref Entity `e`, result is a reference, const if the
          * @ref SparseSet is const. 
          * If the result is a reference, component data can be updated in-place.
          *
-         * @see replace() or addOrReplace() for updating whole components.
          * 
          * @note Crashes when an @ref Entity without a component is passed to enforce strict
          * state determinism and prevent unnoticed bugs.
@@ -69,7 +68,7 @@ namespace ecs {
             return self.denseComponents[densePosition];
         }
 
-        /**
+        /** @internal
          * @brief Adds an @ref Entity and component if the @ref Entity does have a component.
          *
          * @note Crashes when an `e` already has a component to enforce strict state 
@@ -100,7 +99,7 @@ namespace ecs {
             sparse[e.index()] = sparseIndex;
         }
 
-        /**
+        /** @internal
          * @brief Replaces component data of an @ref Entity if `e` already has a component.
          *
          * @note Crashes when an `e` doesn't have a component to enforce strict state
@@ -123,15 +122,29 @@ namespace ecs {
             get(e) = std::forward<U>(component);
         }
 
-        /**
-         * @brief 
+        /** @internal
+         * @brief Adds or replaces an @ref Entity and its component data, whether the Entity or component
+         * data already exists or not.
+         * @details Inteded to be the "lazy" way of adding a component to an entity with slightly more overhead
+         * than @ref add() and @ref replace().
          * 
+         * @tparam U component to add or relace, same as 'T'.
+         * @param e The @ref Entity to add a component to or replace.
+         * @param component The component to add or replace for `e`.
+         *
+         * @see get() for updating individual fields of a component.
          */
-        void addOrReplace() {
-        
+        template <typename U>
+            requires std::same_as<std::remove_cvref_t<U>, T>
+        void addOrReplace(const ecs::Entity e, U&& component) {
+            if (has(e)) {
+                replace(e, std::forward<U>(component));
+            } else {
+                add(e, std::forward<U>(component));
+            }
         }
 
-        /**
+        /** @internal
          * @brief Removes an @ref Entity and its components if the @ref Entity has a component.
          *
          * @note Crashes when an @ref Entity without a component is passed to enforce strict

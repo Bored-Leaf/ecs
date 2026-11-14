@@ -11,28 +11,30 @@ namespace ecs{
     * @brief An entity that represents the index and generation.
     */
     struct Entity {
-        std::uint32_t indexGeneration{}; ///< Packed values of the Entity's index and generation.
+        using StorageType = std::uint32_t;
 
-        constexpr static int            kIndexBits          {16};                           ///< How many bits are assigned to the index.
-        constexpr static int            kGenerationBits     {16};                           ///< How many bits are assigned to the generation.
-        constexpr static std::uint32_t  kIndexMask          {(1u << kIndexBits) - 1};       ///< Bitmask for the index bits.
-        constexpr static std::uint32_t  kGenerationMask     {(1u << kGenerationBits) - 1};  ///< Bitmask for the generation bits.
+        StorageType indexGeneration{}; ///< Packed values of the Entity's index and generation.
 
-        static_assert(kIndexBits + kGenerationBits == 32, "kIndexBits + kGenerationBits must be 32 bits");
+        constexpr static int            kIndexBits          {16};                           ///< @internal How many bits are assigned to the index.
+        constexpr static int            kGenerationBits     {16};                           ///< @internal How many bits are assigned to the generation.
+        constexpr static StorageType    kIndexMask          {(1u << kIndexBits) - 1};       ///< @internal Bitmask for the index bits.
+        constexpr static StorageType    kGenerationMask     {(1u << kGenerationBits) - 1};  ///< @internal Bitmask for the generation bits.
+
+        static_assert(kIndexBits + kGenerationBits == std::numeric_limits<StorageType>::digits, "kIndexBits + kGenerationBits must be StorageType::digits");
 
         /** @internal
          * @brief Returns the index value from @ref indexGeneration.
          * 
          * @return The Entity's index.
          */
-        constexpr std::uint32_t index()         const { return indexGeneration & kIndexMask; }
+        constexpr StorageType index()         const { return indexGeneration & kIndexMask; }
 
         /** @internal
          * @brief Returns the generation value from @ref indexGeneration.
          * 
          * @return The Entity's generation. 
          */
-        constexpr std::uint32_t generation()    const { return indexGeneration >> kIndexBits; }
+        constexpr StorageType generation()    const { return indexGeneration >> kIndexBits; }
 
         /** @internal
          * @brief Creates an @ref Entity via an index and generation.
@@ -43,9 +45,9 @@ namespace ecs{
          * @param generation The generation of the entity.
          * @return constexpr Entity An entity.
          */
-        constexpr static Entity make(std::uint32_t index, std::uint32_t generation) { 
-            assert(index <= kIndexMask && "Make: index exceeds kIndexMask");
-            assert(generation <= kGenerationMask && "Make: generation exceeds kGenerationMask");
+        constexpr static Entity make(StorageType index, StorageType generation) { 
+            assert(index <= kIndexMask && "Entity::Make: index exceeds kIndexMask");
+            assert(generation <= kGenerationMask && "Entity::Make: generation exceeds kGenerationMask");
             return Entity{.indexGeneration = generation << kIndexBits | index}; 
         }
 

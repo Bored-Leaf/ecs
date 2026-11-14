@@ -9,6 +9,7 @@
 #include <utility>
 #include <concepts>
 #include <type_traits>
+#include <span>
 
 #include "details/entity.hpp"
 
@@ -42,7 +43,7 @@ namespace ecs {
         /** @internal
          * @brief Gets component data of `e`.
          * @details Gets the component data of an @ref Entity `e`, result is a reference, const if the
-         * @ref SparseSet is const. 
+         * @ref SparseSet is const.
          * If the result is a reference, component data can be updated in-place.
          *
          * 
@@ -66,6 +67,29 @@ namespace ecs {
 
             std::uint32_t densePosition{self.sparse[e.index()]};
             return self.denseComponents[densePosition];
+        }
+
+        /** @internal
+         * @brief Gets a non owning view of the components from @ref denseComponents.
+         * 
+         * @warning The resulting span is only safe to use until the next @ref add, @ref replace, @ref addOrReplace or @ref remove call.
+         *
+         * @param self 
+         * @return A std::span of @ref denseComponents.
+         */
+        auto getDenseComponents(this auto& self) {
+            return std::span{self.denseComponents};
+        }
+
+        /** @internal
+         * @brief Gets a non owning view of all the @ref Entities from @ref denseEntities.
+         *
+         * @warning The resulting span is only safe to use until the next @ref add, @ref replace, @ref addOrReplace or @ref remove call.
+         * 
+         * @return A const std::span of @ref denseEntities.
+         */
+        std::span<const ecs::Entity> getDenseEntities() const {
+            return denseEntities;
         }
 
         /** @internal
@@ -197,5 +221,6 @@ namespace ecs {
          * @brief Represents an empty slot in the sparse array.
          */
         constexpr static std::uint32_t      kEmpty{std::numeric_limits<uint32_t>::max()};
+        static_assert(kEmpty > Entity::kIndexMask, "Positions are at most Entity::kIndexMask, kEmpty must be larger than Entity::kIndexMask");
     };
 }

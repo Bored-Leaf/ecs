@@ -198,29 +198,11 @@ namespace ecs {
         }
 
     private:
-        /**
-         * @internal
-         * @brief The sparse array to hold entities.
-         */
-        std::vector<std::uint32_t>          sparse;
+        std::vector<std::uint32_t>          sparse;             ///< @internal The sparse array to hold entities.
+        std::vector<T>                      denseComponents;    ///< @internal The dense array to hold components.
+        std::vector<ecs::Entity>            denseEntities;      ///< @internal The dense array to hold @ref Entity.
 
-        /**
-         * @internal
-         * @brief The dense array to hold components.
-         */
-        std::vector<T>                      denseComponents;
-
-        /**
-         * @internal
-         * @brief The dense array to hold @ref Entity.
-         */
-        std::vector<ecs::Entity>            denseEntities;
-
-        /**
-         * @internal
-         * @brief Represents an empty slot in the sparse array.
-         */
-        constexpr static std::uint32_t      kEmpty{std::numeric_limits<uint32_t>::max()};
+        constexpr static std::uint32_t      kEmpty{std::numeric_limits<std::uint32_t>::max()};  ///< @internal Represents an empty slot in the sparse array.
         static_assert(kEmpty > Entity::kIndexMask, "Positions are at most Entity::kIndexMask, kEmpty must be larger than Entity::kIndexMask");
     };
 }

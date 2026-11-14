@@ -2,11 +2,12 @@
 
 #include <cassert>
 #include <cstdint>
+#include <limits>
 
 #include "entity_handle.hpp"
 
 namespace ecs{
-    /**
+    /** @internal
     * @brief An entity that represents the index and generation.
     */
     struct Entity {
@@ -19,21 +20,21 @@ namespace ecs{
 
         static_assert(kIndexBits + kGenerationBits == 32, "kIndexBits + kGenerationBits must be 32 bits");
 
-        /**
+        /** @internal
          * @brief Returns the index value from @ref indexGeneration.
          * 
          * @return The Entity's index.
          */
         constexpr std::uint32_t index()         const { return indexGeneration & kIndexMask; }
 
-        /**
+        /** @internal
          * @brief Returns the generation value from @ref indexGeneration.
          * 
          * @return The Entity's generation. 
          */
         constexpr std::uint32_t generation()    const { return indexGeneration >> kIndexBits; }
 
-        /**
+        /** @internal
          * @brief Creates an @ref Entity via an index and generation.
          *
          * @pre index <= kIndexMask, generation <= kGenerationMask.
@@ -48,14 +49,14 @@ namespace ecs{
             return Entity{.indexGeneration = generation << kIndexBits | index}; 
         }
 
-        /**
+        /** @internal
          * @brief Converts an Entity to an Entity Handle.
          * 
          * @return The converted EntityHandle.
          */
         constexpr EntityHandle  toHandle() const { return EntityHandle{.indexGeneration = indexGeneration}; }
 
-        /**
+        /** @internal
          * @brief Converts an EntityHandle to an Entity.
          * 
          * @param h The EntityHandle converting to Entity.
@@ -63,7 +64,7 @@ namespace ecs{
          */
         constexpr static Entity fromHandle(const EntityHandle& h) { return Entity{.indexGeneration = h.indexGeneration}; }
 
-        /**
+        /** @internal
          * @brief Checks if the generation is valid.
          * 
          * @return true if generation is larger than 0.
@@ -71,7 +72,7 @@ namespace ecs{
          */
         constexpr bool isNull() const { return generation() == 0; }
 
-        /**
+        /** @internal
          * @brief Compares two entities for equality of their indexGeneration.
          * 
          * @param e The Entity to compare to.

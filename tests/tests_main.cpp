@@ -85,6 +85,35 @@ int main() {
 
     // ================================== //
 
+    std::println("-- SparseSet<T>::getdenseComponents ABDC Test --");
+    auto abdcViewEntities{sparseABCDTest.getDenseEntities()};
+    auto abdcViewComponents{sparseABCDTest.getDenseComponents()};
+
+    for (size_t i = 0; i < abdcViewEntities.size();i++) {
+        std::print("{} : ", abdcViewEntities[i].index());
+        std::println("{:.2f}, {:.2f}, {:.2f}", abdcViewComponents[i].x, abdcViewComponents[i].y,abdcViewComponents[i].z);
+    }
+
+    for (auto& element : abdcViewComponents) {
+         element.x *= 2;
+         element.y *= 2;
+         element.z *= 2;
+    }
+
+    std::println("{} : {:.2f} {:.2f} {:.2f} ", a.index(), sparseABCDTest.get(a).x, sparseABCDTest.get(a).y, sparseABCDTest.get(a).z);
+    std::println("{} : {:.2f} {:.2f} {:.2f} ", c.index(), sparseABCDTest.get(c).x, sparseABCDTest.get(c).y, sparseABCDTest.get(c).z);
+
+    const ecs::SparseSet<Position> sparseABCDTestConst{sparseABCDTest};
+    auto abdcViewComponentsConst{sparseABCDTestConst.getDenseComponents()};
+    for (auto& element : abdcViewComponentsConst) {
+        // Produces correct errors
+        // element.x *= 2;
+        // element.y *= 2;
+        // element.z *= 2;
+    }
+
+    // ================================== //
+
     std::println("-- SparseSet<T>::get() Testing const and non-const SparseSet<T> --");
     const ecs::SparseSet<Position>& sparseSetConstRef{sparseABCDTest};
     ecs::SparseSet<Position>&       sparseSetRef{sparseABCDTest};
@@ -96,6 +125,13 @@ int main() {
     static_assert(!std::is_const_v<std::remove_reference_t<decltype(sparseSetRef.get(a))>>, "SparseSet<T>::get() does not return a non-const refernce for a non-const sparseSet<T>!");
     sparseSetRef.get(a).x = 5.0;
     std::println("Entity A component.x Data, should be 5.0: {:.1f}", sparseSetRef.get(a).x);
+
+    // ================================== //
+
+    std::println("-- SparseSet<T>::getDenseComponents  Testing const and non-const SparseSet<T> --");
+    static_assert(std::is_const_v<std::remove_reference_t<decltype(sparseSetConstRef.getDenseComponents())::element_type>>);
+    static_assert(!std::is_const_v<std::remove_reference_t<decltype(sparseSetRef.getDenseComponents())>>);
+    static_assert(std::is_const_v<std::remove_reference_t<decltype(sparseSetConstRef.getDenseEntities())::element_type>>);
 
     // ================================== //
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <limits>
 
@@ -12,6 +13,8 @@ namespace ecs{
     */
     struct Entity {
         using StorageType = std::uint32_t;
+
+        static_assert(std::unsigned_integral<StorageType>, "StorageType must be an unsigned integer");
 
         StorageType indexGeneration{}; ///< Packed values of the Entity's index and generation.
 
@@ -27,14 +30,14 @@ namespace ecs{
          * 
          * @return The Entity's index.
          */
-        constexpr StorageType index()         const { return indexGeneration & kIndexMask; }
+        constexpr StorageType index()         const { return indexGeneration >> kGenerationBits; }
 
         /** @internal
          * @brief Returns the generation value from @ref indexGeneration.
          * 
          * @return The Entity's generation. 
          */
-        constexpr StorageType generation()    const { return indexGeneration >> kIndexBits; }
+        constexpr StorageType generation()    const { return indexGeneration & kGenerationMask; }
 
         /** @internal
          * @brief Creates an @ref Entity via an index and generation.
@@ -48,7 +51,7 @@ namespace ecs{
         constexpr static Entity make(StorageType index, StorageType generation) { 
             assert(index <= kIndexMask && "Entity::Make: index exceeds kIndexMask");
             assert(generation <= kGenerationMask && "Entity::Make: generation exceeds kGenerationMask");
-            return Entity{.indexGeneration = generation << kIndexBits | index}; 
+            return Entity{.indexGeneration = index << kIndexBits | generation}; 
         }
 
         /** @internal

@@ -15,6 +15,7 @@ namespace ecs {
      * 
      */
     class EntityManager {
+    public:
 
     private:
         struct EntitySlot {
@@ -46,6 +47,16 @@ namespace ecs {
                                    | ((newNextFree & kNextFreeMask) << kGenerationBits);
             }
 
+            constexpr void bumpGeneration() {
+                StorageType newGen = generation() + 1;
+                if ((newGen & kGenerationMask) == 0) {
+                    newGen = 1;
+                }
+
+                setGeneration(newGen);
+            }
+
+        private:
             constexpr void setGeneration(StorageType newGen) {
                 nextFreeGeneration = (nextFreeGeneration & ~kGenerationMask)
                                    | (newGen & kGenerationMask);
@@ -57,6 +68,5 @@ namespace ecs {
 
         constexpr static std::uint16_t  kEmpty{std::numeric_limits<std::uint16_t>::max()};  ///< @internal Represents the end of reusable slots
         static_assert(kEmpty == Entity::kIndexMask, "kEmpty must be same bytes size as Entity::kIndexMask");
-        
     };
 }

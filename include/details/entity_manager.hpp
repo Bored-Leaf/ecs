@@ -16,6 +16,20 @@ namespace ecs {
      */
     class EntityManager {
     public:
+        Entity create() {
+            if (head != kEmpty) {
+                EntitySlot freeSlot{slots[head]};
+                EntitySlot::StorageType freeSlotIndex{head};
+                slots[head].setNextFree(kEmpty);
+                head = freeSlot.nextFreeIndex();
+                
+                return Entity::make(freeSlotIndex, freeSlot.generation());
+            }
+        }
+
+        void destroy() {
+        
+        }
 
     private:
         struct EntitySlot {

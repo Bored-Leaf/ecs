@@ -1,5 +1,6 @@
 #pragma once
 
+#include <print>
 #include <cstdint>
 #include <limits>
 #include <vector>
@@ -16,14 +17,38 @@ namespace ecs {
      */
     class EntityManager {
     public:
+
+        /** @internal
+         * @brief 
+         * 
+         * @note If external code has kept an @ref EntityHandle with generation 1 at slot x for long enough that
+         * it looped from 1 to max BACK to 1 then the @ref EntityManager will consider this generation valid. To avoid this
+         * external code has the ability to specify the index and generation bits in @ref Entity.
+         *
+         * @return Entity 
+         */
         Entity create() {
+        // TODO: Entity Rework
             if (head != kEmpty) {
-                EntitySlot freeSlot{slots[head]};
+                EntitySlot& freeSlot{slots[head]};
                 EntitySlot::StorageType freeSlotIndex{head};
-                slots[head].setNextFree(kEmpty);
                 head = freeSlot.nextFreeIndex();
+
+                freeSlot.setNextFree(kEmpty);
                 
                 return Entity::make(freeSlotIndex, freeSlot.generation());
+            } else {
+                if (slots.size() == kEmpty) [[unlikely]] {
+                    std::println(stderr, "EntityManager::create(): The number of entities is already at max, cannot create another entity. Max slots is {}", slots.size());
+                    std::abort();
+                }
+                
+                Entity::StorageType entityIndex = slots.size();
+
+                EntitySlot newEntitySlot;
+                slots.push_back(newEntitySlot);
+
+                return Entity::make(entityIndex, newEntitySlot.generation());
             }
         }
 
@@ -36,7 +61,12 @@ namespace ecs {
             using StorageType = Entity::StorageType;
             
             // TODO: If Generation 0 is never met why Generation 0 exists as null?
-            StorageType nextFreeGeneration{0x0000'0001};
+            /** @internal
+             * @brief Packed values of the EntitySlots next free index and generation.
+             * @details Defaults to kEmpty for nextFree and 1 for generation.
+             */
+             // TODO: Entity rework figure out the nextFree default.
+            StorageType nextFreeGeneration{0xFFFF'0001};
 
             constexpr static int kNextFreeBits              {Entity::kIndexBits};
             constexpr static int kGenerationBits            {Entity::kGenerationBits};
@@ -77,9 +107,11 @@ namespace ecs {
             }
         };
 
-        std::vector<EntitySlot>         slots{};            ///< @internal Holds @ref EntitySlots 
+        std::vector<EntitySlot>         slots{};            ///< @internal Holds @ref EntitySlots
+        // TODO: Change when updating Entity to templated
         std::uint16_t                   head{kEmpty};       ///< @internal Holds the index of next reusable @ref Entity slot
 
+        // TODO: Change when updating Entity to templated
         constexpr static std::uint16_t  kEmpty{std::numeric_limits<std::uint16_t>::max()};  ///< @internal Represents the end of reusable slots
         static_assert(kEmpty == Entity::kIndexMask, "kEmpty must be same bytes size as Entity::kIndexMask");
     };
